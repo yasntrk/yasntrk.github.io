@@ -1,0 +1,370 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SocialLinks from '../components/SocialLinks.astro';
+import PostCard from '../components/PostCard.astro';
+import { SITE, SKILLS, HIGHLIGHTS, PROJECTS } from '../consts';
+
+// Latest posts for the "writing" teaser.
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+const latest = posts.slice(0, 3);
+---
+
+<BaseLayout>
+  <!-- Hero -->
+  <section class="hero section">
+    <p class="kicker">{SITE.tagline}</p>
+    <h1 class="hero-title">
+      Hi, I'm <span class="grad-text">Yasin</span>.
+    </h1>
+    <p class="hero-sub">
+      {SITE.role} & MSc student at İzmir Institute of Technology. I build
+      full-stack web and mobile products — and break them on purpose to make
+      them secure.
+    </p>
+
+    <div class="hero-meta">
+      <span class="loc">
+        <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"
+          ></path>
+        </svg>
+        {SITE.location}
+      </span>
+    </div>
+
+    <div class="hero-actions">
+      <a class="btn btn-primary" href={`mailto:${SITE.email}`}>Get in touch</a>
+      <a class="btn" href="/blog">Read the blog</a>
+    </div>
+
+    <div class="hero-socials">
+      <SocialLinks />
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- About -->
+  <section class="section" aria-labelledby="about-h">
+    <p class="eyebrow">about</p>
+    <h2 id="about-h" class="section-title">From circuits to code.</h2>
+    <div class="about-body">
+      <p>
+        I started in Electrical & Electronics Engineering, where I learned to
+        think in systems and signals — then followed the part I loved most into
+        software. Today I work across the stack: React and React Native on the
+        front, Node.js and Python on the back, running on AWS.
+      </p>
+      <p>
+        Alongside building, I do application security — white-box and black-box
+        assessments, threat modeling, and secure code review. Shipping fast and
+        shipping safe aren't opposites to me; they're the same discipline seen
+        from two sides.
+      </p>
+    </div>
+  </section>
+
+  <!-- Skills -->
+  <section class="section" aria-labelledby="stack-h">
+    <p class="eyebrow">stack</p>
+    <h2 id="stack-h" class="section-title">Tools I reach for</h2>
+    <div class="skills">
+      {
+        SKILLS.map((cat) => (
+          <div class="skill-group">
+            <h3 class="skill-label">{cat.group}</h3>
+            <div class="tag-row">
+              {cat.items.map((item) => (
+                <span class="tag">{item}</span>
+              ))}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- What I build -->
+  <section class="section" aria-labelledby="build-h">
+    <p class="eyebrow">what i build</p>
+    <h2 id="build-h" class="section-title">Areas I work in</h2>
+    <div class="grid-2">
+      {
+        HIGHLIGHTS.map((h) => (
+          <article class="card">
+            <h3 class="card-title">{h.title}</h3>
+            <p class="card-body">{h.body}</p>
+            <div class="tag-row">
+              {h.tags.map((t) => (
+                <span class="tag">{t}</span>
+              ))}
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- Latest posts -->
+  {
+    latest.length > 0 && (
+      <section class="section" aria-labelledby="writing-h">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">writing</p>
+            <h2 id="writing-h" class="section-title">Latest posts</h2>
+          </div>
+          <a class="see-all" href="/blog">
+            all posts →
+          </a>
+        </div>
+        <div class="stack">
+          {latest.map((post) => (
+            <PostCard
+              href={`/blog/${post.id}/`}
+              title={post.data.title}
+              description={post.data.description}
+              pubDate={post.data.pubDate}
+              tags={post.data.tags}
+            />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Projects -->
+  <section class="section" aria-labelledby="projects-h">
+    <p class="eyebrow">open source</p>
+    <h2 id="projects-h" class="section-title">Selected projects</h2>
+    <div class="grid-2">
+      {
+        PROJECTS.map((p) => (
+          <a class="card project" href={p.href} target="_blank" rel="noopener">
+            <div class="project-head">
+              <h3 class="card-title">{p.name}</h3>
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" class="arrow">
+                <path
+                  fill="currentColor"
+                  d="M7 17 17 7M9 7h8v8"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            <p class="card-body">{p.description}</p>
+            <div class="tag-row">
+              {p.tags.map((t) => (
+                <span class="tag">{t}</span>
+              ))}
+            </div>
+          </a>
+        ))
+      }
+    </div>
+    <p class="more-projects">
+      More on <a href="https://github.com/yasntrk" target="_blank" rel="noopener"
+        >GitHub →</a
+      >
+    </p>
+  </section>
+
+  <!-- Contact -->
+  <section class="section contact" aria-labelledby="contact-h">
+    <h2 id="contact-h" class="contact-title">Let's build something.</h2>
+    <p class="contact-sub">
+      Open to interesting problems in web, mobile, and security. The fastest way
+      to reach me is email.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href={`mailto:${SITE.email}`}>{SITE.email}</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Hero */
+  .hero {
+    padding-top: 2rem;
+  }
+  .kicker {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--accent);
+    margin: 0 0 1rem;
+    letter-spacing: 0.01em;
+  }
+  .hero-title {
+    font-size: clamp(2.4rem, 8vw, 3.6rem);
+    line-height: 1.05;
+    margin-bottom: 1.1rem;
+  }
+  .hero-sub {
+    font-size: clamp(1.05rem, 2.5vw, 1.2rem);
+    color: var(--text-muted);
+    max-width: 40ch;
+    margin: 0 0 1.4rem;
+  }
+  .hero-meta {
+    margin-bottom: 1.6rem;
+  }
+  .loc {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--text-faint);
+  }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-bottom: 1.6rem;
+  }
+  .hero-socials {
+    margin-top: 0.5rem;
+  }
+
+  /* Section headings */
+  .section-title {
+    font-size: clamp(1.5rem, 4vw, 1.9rem);
+    margin-bottom: 1.4rem;
+  }
+  .section-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.4rem;
+  }
+  .section-head .section-title {
+    margin-bottom: 0;
+  }
+  .see-all,
+  .more-projects a {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .see-all:hover {
+    color: var(--accent);
+  }
+
+  .about-body p {
+    color: var(--text-muted);
+    max-width: 62ch;
+  }
+  .about-body p + p {
+    margin-top: 1rem;
+  }
+
+  /* Skills */
+  .skills {
+    display: grid;
+    gap: 1.3rem;
+  }
+  .skill-group {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 1rem;
+    align-items: start;
+  }
+  .skill-label {
+    font-size: 0.9rem;
+    color: var(--text-faint);
+    font-weight: 500;
+    padding-top: 0.15rem;
+  }
+  @media (max-width: 520px) {
+    .skill-group {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+  }
+
+  /* Cards grid */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  @media (max-width: 620px) {
+    .grid-2 {
+      grid-template-columns: 1fr;
+    }
+  }
+  .card-title {
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+  }
+  .card-body {
+    color: var(--text-muted);
+    font-size: 0.94rem;
+    margin: 0 0 0.9rem;
+  }
+
+  /* Projects */
+  .project {
+    color: var(--text);
+  }
+  .project-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .project .arrow {
+    color: var(--text-faint);
+    transition: color 0.15s var(--ease), transform 0.15s var(--ease);
+  }
+  .project:hover .arrow {
+    color: var(--accent);
+    transform: translate(2px, -2px);
+  }
+  .project:hover .card-title {
+    color: var(--accent);
+  }
+  .more-projects {
+    margin-top: 1.2rem;
+    font-size: 0.9rem;
+  }
+
+  /* Writing list */
+  .stack {
+    display: grid;
+    gap: 0.8rem;
+  }
+
+  /* Contact */
+  .contact {
+    text-align: center;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 3rem 1.5rem;
+    background:
+      radial-gradient(30rem 12rem at 50% 0, var(--accent-glow), transparent 70%),
+      linear-gradient(180deg, var(--surface) 0%, var(--bg-soft) 100%);
+  }
+  .contact-title {
+    font-size: clamp(1.6rem, 5vw, 2.2rem);
+    margin-bottom: 0.8rem;
+  }
+  .contact-sub {
+    color: var(--text-muted);
+    max-width: 46ch;
+    margin: 0 auto 1.6rem;
+  }
+  .contact .hero-actions {
+    justify-content: center;
+    margin-bottom: 0;
+  }
+</style>

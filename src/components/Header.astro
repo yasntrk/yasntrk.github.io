@@ -1,0 +1,107 @@
+---
+import { SITE, NAV } from '../consts';
+
+const path = Astro.url.pathname;
+// Normalise trailing slashes for active-link matching.
+const norm = (p: string) => (p !== '/' && p.endsWith('/') ? p.slice(0, -1) : p);
+const current = norm(path);
+const isActive = (href: string) =>
+  href === '/' ? current === '/' : current === href || current.startsWith(href + '/');
+---
+
+<header class="site-header">
+  <div class="container bar">
+    <a href="/" class="brand" aria-label={`${SITE.name} — home`}>
+      <span class="brand-mark grad-text">yt</span>
+      <span class="brand-name">{SITE.name}</span>
+    </a>
+
+    <nav aria-label="Primary">
+      <ul>
+        {
+          NAV.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class:list={['nav-link', { active: isActive(item.href) }]}
+                aria-current={isActive(item.href) ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: saturate(160%) blur(12px);
+    -webkit-backdrop-filter: saturate(160%) blur(12px);
+    background: color-mix(in oklab, var(--bg) 72%, transparent);
+    border-bottom: 1px solid var(--border);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--text);
+    font-weight: 600;
+  }
+  .brand:hover {
+    color: var(--text);
+  }
+  .brand-mark {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 1.05rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    padding: 0.15rem 0.4rem;
+    line-height: 1;
+  }
+  .brand-name {
+    font-size: 0.95rem;
+    letter-spacing: -0.01em;
+  }
+  nav ul {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .nav-link {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    padding: 0.4rem 0.7rem;
+    border-radius: 8px;
+    transition: color 0.15s var(--ease), background 0.15s var(--ease);
+  }
+  .nav-link:hover {
+    color: var(--text);
+    background: var(--surface);
+  }
+  .nav-link.active {
+    color: var(--text);
+    background: var(--surface-2);
+  }
+  @media (max-width: 480px) {
+    .brand-name {
+      display: none;
+    }
+  }
+</style>

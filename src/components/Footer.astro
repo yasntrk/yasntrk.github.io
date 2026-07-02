@@ -1,0 +1,46 @@
+---
+import { SITE } from '../consts';
+import SocialLinks from './SocialLinks.astro';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container inner">
+    <p class="note">
+      © {year} {SITE.name} · Built with <a
+        href="https://astro.build"
+        rel="noopener"
+        target="_blank">Astro</a
+      >
+    </p>
+    <SocialLinks />
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--border);
+    margin-top: 5rem;
+    padding-block: 2rem;
+  }
+  .inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .note {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-faint);
+    font-family: var(--font-mono);
+  }
+  .note a {
+    color: var(--text-muted);
+  }
+  .note a:hover {
+    color: var(--accent);
+  }
+</style>

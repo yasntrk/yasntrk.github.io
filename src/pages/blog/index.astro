@@ -1,0 +1,62 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+---
+
+<BaseLayout
+  title="Blog"
+  description="Writing on web, mobile, backend engineering, and application security by Yasin Türk."
+>
+  <section class="section">
+    <p class="eyebrow">writing</p>
+    <h1 class="page-title">Blog</h1>
+    <p class="page-sub">
+      Notes on building web & mobile products, backend systems, and application
+      security.
+    </p>
+
+    {
+      posts.length > 0 ? (
+        <div class="stack">
+          {posts.map((post) => (
+            <PostCard
+              href={`/blog/${post.id}/`}
+              title={post.data.title}
+              description={post.data.description}
+              pubDate={post.data.pubDate}
+              tags={post.data.tags}
+            />
+          ))}
+        </div>
+      ) : (
+        <p class="empty">No posts yet — check back soon.</p>
+      )
+    }
+  </section>
+</BaseLayout>
+
+<style>
+  .page-title {
+    font-size: clamp(2rem, 6vw, 2.6rem);
+    margin-bottom: 0.6rem;
+  }
+  .page-sub {
+    color: var(--text-muted);
+    max-width: 50ch;
+    margin: 0 0 2.4rem;
+  }
+  .stack {
+    display: grid;
+    gap: 0.8rem;
+  }
+  .empty {
+    color: var(--text-faint);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+  }
+</style>

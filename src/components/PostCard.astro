@@ -1,0 +1,73 @@
+---
+import FormattedDate from './FormattedDate.astro';
+
+interface Props {
+  href: string;
+  title: string;
+  description: string;
+  pubDate: Date;
+  tags?: string[];
+}
+
+const { href, title, description, pubDate, tags = [] } = Astro.props;
+---
+
+<a class="post-card" href={href}>
+  <div class="post-head">
+    <h3 class="post-title">{title}</h3>
+    <FormattedDate date={pubDate} />
+  </div>
+  <p class="post-desc">{description}</p>
+  {
+    tags.length > 0 && (
+      <div class="tag-row">
+        {tags.map((t) => (
+          <span class="tag">{t}</span>
+        ))}
+      </div>
+    )
+  }
+</a>
+
+<style>
+  .post-card {
+    display: block;
+    color: var(--text);
+    border: 1px solid var(--border);
+    background: linear-gradient(180deg, var(--surface) 0%, var(--bg-soft) 100%);
+    border-radius: var(--radius);
+    padding: 1.15rem 1.3rem;
+    transition: border-color 0.2s var(--ease), transform 0.2s var(--ease),
+      box-shadow 0.2s var(--ease);
+  }
+  .post-card:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px -18px var(--accent-glow);
+  }
+  .post-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .post-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+  .post-card:hover .post-title {
+    color: var(--accent);
+  }
+  .post-head :global(time) {
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-faint);
+  }
+  .post-desc {
+    margin: 0.5rem 0 0.85rem;
+    color: var(--text-muted);
+    font-size: 0.94rem;
+  }
+</style>
