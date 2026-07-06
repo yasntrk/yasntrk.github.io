@@ -47,6 +47,27 @@ const latest = posts.slice(0, 3);
     </div>
   </section>
 
+  <!-- Play DICO -->
+  <section class="section" aria-labelledby="dico-h">
+    <a class="dico-banner" href="/dico/">
+      <div class="dico-copy">
+        <p class="dico-kicker">now playable in your browser</p>
+        <h2 id="dico-h" class="dico-title">DICO</h2>
+        <p class="dico-sub">
+          An occult-carnival dice roguelike I built in Godot — read fate, rig
+          the odds, chain multiplicative reads across three nights. Türkçe &
+          English. Plays on desktop and mobile.
+        </p>
+        <span class="dico-cta">Play in browser →</span>
+      </div>
+      <div class="dico-dice" aria-hidden="true">
+        <span class="pip-die d1"><i></i></span>
+        <span class="pip-die d2"><i></i><i></i><i></i></span>
+        <span class="pip-die d3"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      </div>
+    </a>
+  </section>
+
   <hr class="divider" />
 
   <!-- About -->
@@ -191,6 +212,149 @@ const latest = posts.slice(0, 3);
 </BaseLayout>
 
 <style>
+  /* Play DICO banner */
+  .dico-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.8rem 1.8rem;
+    border-radius: var(--radius);
+    border: 1px solid #3a2b6e;
+    color: #f2ebff;
+    background:
+      radial-gradient(24rem 14rem at 15% 0, rgba(246, 196, 69, 0.14), transparent 70%),
+      linear-gradient(135deg, #1a1030 0%, #2a1a54 55%, #3d2b7e 100%);
+    overflow: hidden;
+    transition: transform 0.18s var(--ease), border-color 0.18s var(--ease);
+  }
+  .dico-banner:hover {
+    transform: translateY(-2px);
+    border-color: #f6c445;
+  }
+  .dico-copy {
+    max-width: 40ch;
+  }
+  .dico-kicker {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #f6c445;
+    margin: 0 0 0.3rem;
+  }
+  .dico-title {
+    font-size: clamp(2rem, 7vw, 2.8rem);
+    line-height: 1;
+    letter-spacing: 0.08em;
+    color: #f6c445;
+    margin: 0 0 0.6rem;
+    text-shadow: 0 2px 0 #14121f;
+  }
+  .dico-sub {
+    color: #cdbff2;
+    font-size: 0.95rem;
+    margin: 0 0 1rem;
+  }
+  .dico-cta {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #14121f;
+    background: #f6c445;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+  }
+  /* Animated dice cluster */
+  .dico-dice {
+    display: flex;
+    gap: 0.7rem;
+    flex-shrink: 0;
+  }
+  .pip-die {
+    width: 58px;
+    height: 58px;
+    border-radius: 12px;
+    background: #f4e9d4;
+    border: 2px solid #14121f;
+    box-shadow: 0 6px 0 rgba(20, 18, 31, 0.5);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    padding: 8px;
+    gap: 2px;
+    animation: dico-float 3s ease-in-out infinite;
+  }
+  .pip-die.d2 {
+    animation-delay: 0.4s;
+  }
+  .pip-die.d3 {
+    animation-delay: 0.8s;
+  }
+  .pip-die i {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #241d2e;
+    align-self: center;
+    justify-self: center;
+  }
+  /* pip placements */
+  .pip-die.d1 i {
+    grid-area: 2 / 2;
+  }
+  .pip-die.d2 i:nth-child(1) {
+    grid-area: 1 / 1;
+  }
+  .pip-die.d2 i:nth-child(2) {
+    grid-area: 2 / 2;
+  }
+  .pip-die.d2 i:nth-child(3) {
+    grid-area: 3 / 3;
+  }
+  .pip-die.d3 i:nth-child(1) {
+    grid-area: 1 / 1;
+  }
+  .pip-die.d3 i:nth-child(2) {
+    grid-area: 1 / 3;
+  }
+  .pip-die.d3 i:nth-child(3) {
+    grid-area: 2 / 1;
+  }
+  .pip-die.d3 i:nth-child(4) {
+    grid-area: 2 / 3;
+  }
+  .pip-die.d3 i:nth-child(5) {
+    grid-area: 3 / 1;
+  }
+  .pip-die.d3 i:nth-child(6) {
+    grid-area: 3 / 3;
+  }
+  @keyframes dico-float {
+    0%,
+    100% {
+      transform: translateY(0) rotate(-3deg);
+    }
+    50% {
+      transform: translateY(-8px) rotate(3deg);
+    }
+  }
+  @media (max-width: 620px) {
+    .dico-banner {
+      flex-direction: column;
+      text-align: center;
+    }
+    .dico-copy {
+      max-width: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pip-die {
+      animation: none;
+    }
+  }
+
   /* Hero */
   .hero {
     padding-top: 2rem;
