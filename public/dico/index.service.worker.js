@@ -4,7 +4,7 @@
 // Incrementing CACHE_VERSION will kick off the install event and force
 // previously cached resources to be updated from the network.
 /** @type {string} */
-const CACHE_VERSION = '1783344846|1811823';
+const CACHE_VERSION = '1783347977|1691121';
 /** @type {string} */
 const CACHE_PREFIX = 'DICO-sw-cache-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
