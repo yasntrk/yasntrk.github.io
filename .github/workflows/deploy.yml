@@ -18,16 +18,22 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+# NOTE: keep every action on a major that runs on Node 24. The older majors
+# (checkout@v4, withastro/action@v3, deploy-pages@v4) still ran, but GitHub
+# flagged each run with a "Node.js 20 is deprecated" warning and will stop
+# forcing them onto Node 24 eventually. withastro/action@v6 also drags its own
+# internals (setup-node, upload-pages-artifact) up to Node-24 versions, which is
+# where the rest of those warnings came from.
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Build Astro site
-        uses: withastro/action@v3
+        uses: withastro/action@v6
         # with:
-        #   node-version: 20   # optional override
+        #   node-version: 24   # optional override (v6 already defaults to 24)
 
   deploy:
     needs: build
@@ -38,4 +44,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
