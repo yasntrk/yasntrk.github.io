@@ -420,11 +420,23 @@
       + '<div style="display:flex;justify-content:space-between;align-items:center;color:#8b949e;font-size:12px"><span>collected</span><b id="xunf-count" style="color:#1d9bf0;font-size:15px">0</b></div>'
       + '<div style="color:#6b7480;font-size:11px;margin-top:6px">Scrolling slowly so none are missed. A small window is doing it — it closes itself.</div>');
     const setCount = (n) => { const el = document.getElementById("xunf-count"); if (el) el.textContent = String(n); };
-    let stable = 0, lastCount = -1, lastH = -1;
-    for (let i = 0; i < 9000 && stable < 5; i++) {
+    const findRetry = () => {
+      try {
+        const els = w.document.querySelectorAll('[role="button"], button, a[role="button"]');
+        for (const b of els) {
+          const t = (b.textContent || "").trim().toLowerCase();
+          if (t && /^(retry|try again|reload|yeniden dene|tekrar dene)$/.test(t)) return b;
+        }
+      } catch (e) {}
+      return null;
+    };
+    let stable = 0, lastCount = -1, lastH = -1, retries = 0;
+    for (let i = 0; i < 14000 && stable < 6; i++) {
       if (w.closed) break;
       try { collect(w.document, into); } catch (e) {}
       setCount(into.size);
+      const rb = findRetry();
+      if (rb && retries < 8) { try { rb.click(); } catch (e) {} retries++; stable = 0; await sleep(5000); continue; }
       let h = 0, atBottom = false;
       try {
         const se = w.document.scrollingElement || w.document.documentElement;
@@ -437,8 +449,9 @@
       lastCount = into.size; lastH = h;
     }
     try { collect(w.document, into); } catch (e) {}
+    const incomplete = !!findRetry();
     try { w.close(); } catch (e) {}
-    return into;
+    return { map: into, incomplete: incomplete };
   };
 
   const unfollow = async (handle) => {
@@ -459,13 +472,25 @@
     say('<b style="color:#1d9bf0">Starting…</b><div style="color:#8b949e;font-size:12px;margin-top:4px">Two small windows will pop up, one after another. If the browser asks, <b>allow pop-ups</b> for x.com.</div>');
     await sleep(700);
     const following = await scrape("following");
+    for (let s = 8; s > 0; s--) {
+      say('<div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:99px;background:#f5c542;animation:xunf-pulse 1.2s infinite;flex:0 0 auto"></span><b>Cooling down… ' + s + 's</b></div>'
+        + '<div class="xunf-track"><div class="xunf-bar" style="background:linear-gradient(90deg,rgba(245,197,66,0),#f5c542,rgba(245,197,66,0))"></div></div>'
+        + '<div style="color:#6b7480;font-size:12px">Short pause before the followers list so X doesn’t rate-limit it.</div>');
+      await sleep(1000);
+    }
     const followers = await scrape("followers");
     try { window.focus(); } catch (e) {}
 
-    if (!following.size) { say('<b style="color:#e0245e">No accounts read.</b><div style="color:#8b949e;margin-top:4px">X may be rate-limiting. Wait a minute, then run again and keep the pop-up in front.</div>'); return; }
+    const fMap = following.map, rMap = followers.map;
+    if (!fMap.size) { say('<b style="color:#e0245e">No accounts read.</b><div style="color:#8b949e;margin-top:4px">X may be rate-limiting. Wait a minute, then run again and keep the pop-up in front.</div>'); return; }
 
-    const notBack = [...following.values()].filter((u) => !followers.has(u.handle.toLowerCase()));
+    const followerSet = new Set([...rMap.keys()]);
+    const notBack = [...fMap.values()].filter((u) => !followerSet.has(u.handle.toLowerCase()));
     const handles = notBack.map((u) => "@" + u.handle).join(" ");
+    const shaky = following.incomplete || followers.incomplete || (rMap.size < fMap.size * 0.2 && notBack.length > fMap.size * 0.6);
+    const warnHtml = shaky
+      ? '<div style="background:rgba(224,36,94,.12);border:1px solid #e0245e;border-radius:10px;padding:8px 10px;margin-bottom:10px;color:#ff9db5;font-size:12px">⚠ The followers list looks incomplete (only ' + rMap.size + ' read), so many of these are probably wrong. X likely rate-limited it — close this, wait a minute, then run again.</div>'
+      : "";
 
     const rowHtml = (u) =>
       '<div class="xunf-row" data-h="' + u.handle + '" style="display:flex;gap:9px;align-items:center;padding:8px 0;border-top:1px solid #2b3036">'
@@ -478,9 +503,10 @@
       + '</span><span class="xunf-status" style="font-size:11px;flex:0 0 auto;color:#8b949e"></span></div>';
 
     say(
-      '<div style="display:flex;justify-content:space-between;align-items:center">'
+      warnHtml
+      + '<div style="display:flex;justify-content:space-between;align-items:center">'
       + '<b style="font-size:15px">Don’t follow you back</b><b style="color:#1d9bf0;font-size:20px">' + notBack.length + '</b></div>'
-      + '<div style="color:#8b949e;font-size:12px;margin:2px 0 10px">of ' + following.size + ' you follow · ' + followers.size + ' followers scanned</div>'
+      + '<div style="color:#8b949e;font-size:12px;margin:2px 0 10px">of ' + fMap.size + ' you follow · ' + rMap.size + ' followers scanned</div>'
       + '<div style="display:flex;gap:6px;margin-bottom:8px">'
       +   '<button id="xunf-all" style="flex:1;background:#1b1f24;color:#eef1f3;border:1px solid #2f3742;border-radius:9px;padding:8px;cursor:pointer;font:inherit;font-size:13px;font-weight:600">Select all</button>'
       +   '<button id="xunf-copy" style="flex:1;background:#1b1f24;color:#eef1f3;border:1px solid #2f3742;border-radius:9px;padding:8px;cursor:pointer;font:inherit;font-size:13px;font-weight:600">Copy @handles</button>'
@@ -521,7 +547,7 @@
       unfBtn.textContent = "Done — " + done + " unfollowed" + (fail ? (" · " + fail + " failed") : "");
       allBtn.disabled = false;
     };
-    console.log("[X Unfollowers] " + notBack.length + " of " + following.size + " don’t follow back:\n" + handles);
+    console.log("[X Unfollowers] " + notBack.length + " of " + fMap.size + " don’t follow back:\n" + handles);
   } catch (err) {
     if (err && err.popup) {
       say('<b style="color:#e0245e">Pop-ups are blocked.</b><div style="color:#8b949e;margin-top:4px">Allow pop-ups for x.com (icon in the address bar), then run the code again.</div>');
