@@ -5,18 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="A small, fast console tool that finds the X (Twitter) accounts which do not follow you back. Runs entirely in your browser — your data never leaves it."
+      content="See which X (Twitter) accounts don't follow you back. One click, runs entirely in your browser — your data never leaves it."
     />
-    <meta name="theme-color" content="#0b0e11" />
+    <meta name="theme-color" content="#0a0d10" />
 
-    <!-- Pick the language before first paint so the wrong one never flashes. -->
     <script>
       (function () {
         var lang = "en";
-        try {
-          var stored = localStorage.getItem("xunf_lang");
-          lang = stored === "tr" ? "tr" : "en";
-        } catch (e) {}
+        try { var s = localStorage.getItem("xunf_lang"); lang = s === "tr" ? "tr" : "en"; } catch (e) {}
         document.documentElement.setAttribute("data-lang", lang);
         document.documentElement.lang = lang;
       })();
@@ -31,173 +27,153 @@
 
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b0e11'/%3E%3Cpath d='M9 8l14 16M23 8L9 24' stroke='%231d9bf0' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230a0d10'/%3E%3Cpath d='M9 8l14 16M23 8L9 24' stroke='%231d9bf0' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E"
     />
-
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
     <style>
       :root {
-        --bg: #0b0e11;
-        --bg2: #0f1317;
-        --card: #16191d;
-        --card2: #1b1f24;
-        --border: #2b3036;
-        --text: #e7e9ea;
+        --bg: #0a0d10;
+        --card: #14181d;
+        --card2: #1a1f25;
+        --border: #242a31;
+        --border2: #2f3742;
+        --text: #eef1f3;
         --muted: #8b949e;
+        --muted2: #6b7480;
         --accent: #1d9bf0;
-        --accent-ink: #05202e;
+        --accent2: #38c1ff;
         --ok: #2fb86b;
         --dico: #8b7bf0;
-        --dico-gold: #f5c542;
-        --radius: 14px;
+        --gold: #f5c542;
       }
       * { box-sizing: border-box; }
       html, body { margin: 0; }
       body {
-        background: radial-gradient(120% 80% at 50% -10%, #10161c 0%, var(--bg) 60%);
+        background: var(--bg);
         color: var(--text);
         font-family: "Geist", system-ui, -apple-system, sans-serif;
         line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
         min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
       }
-      /* language show/hide */
+      body::before {
+        content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+        background:
+          radial-gradient(60% 42% at 50% -8%, rgba(29,155,240,.20), transparent 70%),
+          radial-gradient(40% 30% at 88% 4%, rgba(139,123,240,.12), transparent 70%);
+      }
       html[data-lang="en"] [data-t="tr"], html[data-lang="tr"] [data-t="en"] { display: none !important; }
-
       a { color: var(--accent); text-decoration: none; }
       a:hover { text-decoration: underline; }
+      .wrap { width: 100%; max-width: 720px; margin: 0 auto; padding: 0 20px; }
 
-      .wrap { width: 100%; max-width: 760px; margin: 0 auto; padding: 0 20px; }
-
-      header {
-        display: flex; align-items: center; justify-content: space-between;
-        padding: 18px 0; gap: 12px;
-      }
-      .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -0.01em; }
-      .brand svg { width: 26px; height: 26px; }
+      /* header */
+      header { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; gap: 10px; }
+      .brand { display: inline-flex; align-items: center; gap: 9px; font-weight: 700; letter-spacing: -.01em; }
+      .brand svg { width: 24px; height: 24px; }
       .brand b { color: var(--accent); }
       .top-actions { display: inline-flex; align-items: center; gap: 8px; }
-
-      .btn {
-        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-        border: 1px solid var(--border); background: var(--card); color: var(--text);
-        padding: 9px 14px; border-radius: 999px; font: inherit; font-weight: 600; font-size: 14px;
-        cursor: pointer; transition: all .15s ease; text-decoration: none;
+      .support-btn {
+        display: inline-flex; align-items: center; gap: 6px; border: 1px solid #33305c; background: rgba(139,123,240,.08);
+        color: #c9c0ff; padding: 7px 13px; border-radius: 999px; font: inherit; font-weight: 600; font-size: 13px; cursor: pointer;
       }
-      .btn:hover { border-color: var(--accent); color: #fff; text-decoration: none; }
-      .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-      .btn.primary:hover { background: #1a8cd8; }
-      .btn.support { border-color: #3a3358; color: #c9c0ff; }
-      .btn.support:hover { border-color: var(--dico); color: #fff; }
-      .btn.ghost { background: transparent; }
-      .btn:disabled { opacity: .5; cursor: default; }
-
+      .support-btn:hover { border-color: var(--dico); color: #fff; }
       .lang { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
-      .lang button { background: transparent; border: 0; color: var(--muted); font: inherit; font-weight: 600; font-size: 13px; padding: 6px 12px; cursor: pointer; }
+      .lang button { background: transparent; border: 0; color: var(--muted); font: inherit; font-weight: 600; font-size: 13px; padding: 6px 11px; cursor: pointer; }
       html[data-lang="en"] .lang [data-set="en"], html[data-lang="tr"] .lang [data-set="tr"] { background: var(--accent); color: #fff; }
 
-      .hero { padding: 26px 0 8px; }
-      h1 { font-size: clamp(28px, 6vw, 42px); line-height: 1.08; letter-spacing: -0.02em; margin: 0 0 12px; }
-      h1 .x { color: var(--accent); }
-      .lede { color: var(--muted); font-size: 17px; max-width: 56ch; margin: 0; }
-      .badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; }
-      .pill { font-size: 12px; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; background: var(--card); }
+      /* hero */
+      .hero { text-align: center; padding: 44px 0 8px; }
+      .eyebrow { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600; color: var(--accent2); background: rgba(29,155,240,.08); border: 1px solid rgba(29,155,240,.22); padding: 5px 12px; border-radius: 999px; }
+      h1 { font-size: clamp(30px, 6.4vw, 50px); font-weight: 800; line-height: 1.05; letter-spacing: -.03em; margin: 18px 0 14px; }
+      h1 .grad { background: linear-gradient(120deg, var(--accent2), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .lede { color: var(--muted); font-size: 17px; max-width: 52ch; margin: 0 auto; }
+
+      .cta { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 26px 0 14px; }
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+        border: 1px solid var(--border2); background: var(--card); color: var(--text);
+        padding: 13px 22px; border-radius: 12px; font: inherit; font-weight: 600; font-size: 15px; cursor: pointer; transition: all .16s ease; text-decoration: none;
+      }
+      .btn:hover { text-decoration: none; transform: translateY(-1px); }
+      .btn svg { width: 18px; height: 18px; }
+      .btn.primary {
+        border: 0; color: #fff; font-weight: 700;
+        background: linear-gradient(120deg, #38c1ff, #1d9bf0);
+        box-shadow: 0 10px 30px -8px rgba(29,155,240,.55);
+      }
+      .btn.primary:hover { box-shadow: 0 14px 38px -8px rgba(29,155,240,.7); }
+      .btn.primary.copied { background: linear-gradient(120deg, #35d07f, #2fb86b); box-shadow: 0 12px 34px -8px rgba(47,184,107,.6); }
+      .btn.ghost { background: var(--card); }
+      .btn.ghost:hover { border-color: var(--accent); color: #fff; }
+
+      .trust { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 6px; }
+      .pill { font-size: 12.5px; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 5px 12px; background: rgba(255,255,255,.02); }
       .pill b { color: var(--ok); }
 
-      section.card {
-        background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
-        padding: 20px; margin: 22px 0;
-      }
-      h2 { font-size: 20px; margin: 0 0 4px; letter-spacing: -0.01em; }
-      .sub { color: var(--muted); font-size: 14px; margin: 0 0 16px; }
+      /* steps */
+      .section-title { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted2); text-align: center; margin: 46px 0 18px; }
+      .steps { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      @media (max-width: 560px) { .steps { grid-template-columns: 1fr; } }
+      .step { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px 16px 15px; position: relative; }
+      .step .ic { width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; background: rgba(29,155,240,.10); color: var(--accent2); border: 1px solid rgba(29,155,240,.2); margin-bottom: 10px; }
+      .step .ic svg { width: 20px; height: 20px; }
+      .step .n { position: absolute; top: 14px; right: 16px; font: 700 13px "JetBrains Mono", monospace; color: var(--muted2); }
+      .step h3 { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
+      .step p { margin: 0; color: var(--muted); font-size: 13.5px; }
+      kbd { font: 12px "JetBrains Mono", monospace; background: var(--card2); border: 1px solid var(--border2); border-bottom-width: 2px; border-radius: 6px; padding: 1px 6px; color: var(--text); }
 
-      ol.steps { counter-reset: s; list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
-      ol.steps li { position: relative; padding-left: 44px; }
-      ol.steps li::before {
-        counter-increment: s; content: counter(s);
-        position: absolute; left: 0; top: -2px; width: 30px; height: 30px; border-radius: 999px;
-        display: grid; place-items: center; font-weight: 700; font-size: 14px;
-        background: var(--accent-ink); color: var(--accent); border: 1px solid #164a63;
-      }
-      ol.steps li h3 { margin: 2px 0 3px; font-size: 15px; font-weight: 600; }
-      ol.steps li p { margin: 0; color: var(--muted); font-size: 14px; }
-      kbd { font: 12px "JetBrains Mono", monospace; background: var(--card2); border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 6px; padding: 1px 6px; color: var(--text); }
-
-      .codewrap { position: relative; margin-top: 6px; }
-      .codebar { display: flex; align-items: center; justify-content: space-between; background: var(--card2); border: 1px solid var(--border); border-bottom: 0; border-radius: 10px 10px 0 0; padding: 8px 12px; }
+      /* collapsible code */
+      details.codebox { margin: 22px 0 8px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); overflow: hidden; }
+      details.codebox > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; font-size: 14px; font-weight: 600; color: var(--muted); }
+      details.codebox > summary::-webkit-details-marker { display: none; }
+      details.codebox > summary:hover { color: var(--text); }
+      details.codebox > summary .chev { transition: transform .2s ease; color: var(--muted2); }
+      details.codebox[open] > summary .chev { transform: rotate(90deg); }
+      .codebar { display: flex; align-items: center; justify-content: space-between; background: var(--card2); border-top: 1px solid var(--border); padding: 8px 12px; }
       .codebar .fname { font: 12px "JetBrains Mono", monospace; color: var(--muted); }
-      pre.code {
-        margin: 0; background: #0a0d10; border: 1px solid var(--border); border-radius: 0 0 10px 10px;
-        padding: 14px; overflow: auto; max-height: 260px;
-        font: 12.5px/1.6 "JetBrains Mono", monospace; color: #cbd5e1;
-      }
-      .copybtn { padding: 6px 12px; font-size: 13px; }
-      .copybtn.copied { border-color: var(--ok); color: var(--ok); }
+      .copysm { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 13px; font-weight: 600; border: 1px solid var(--border2); background: var(--card); color: var(--text); border-radius: 8px; cursor: pointer; }
+      .copysm:hover { border-color: var(--accent); }
+      pre.code { margin: 0; background: #070a0d; padding: 14px; overflow: auto; max-height: 300px; font: 12.5px/1.6 "JetBrains Mono", monospace; color: #b8c2cc; border-top: 1px solid var(--border); }
 
-      /* preview of the results panel */
-      .preview { border: 1px dashed var(--border); border-radius: 12px; padding: 14px; background: var(--bg2); }
-      .preview .pv-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-      .preview .pv-title { font-weight: 700; font-size: 14px; }
-      .preview .pv-count { color: var(--accent); font-weight: 700; }
-      .preview .row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid var(--border); }
-      .preview .av { width: 26px; height: 26px; border-radius: 999px; background: linear-gradient(135deg, #24303a, #171c21); flex: 0 0 auto; }
-      .preview .hn { font: 13px "JetBrains Mono", monospace; color: var(--text); }
-      .preview .nm { color: var(--muted); font-size: 12px; }
+      /* preview */
+      .preview { border: 1px solid var(--border); border-radius: 16px; padding: 16px; background: linear-gradient(180deg, var(--card), #10141900); margin-top: 12px; }
+      .pv-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+      .pv-title { font-weight: 700; font-size: 14px; }
+      .pv-count { color: var(--accent); font-weight: 800; font-size: 18px; }
+      .pv-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--border); }
+      .pv-av { width: 28px; height: 28px; border-radius: 999px; background: linear-gradient(135deg, #24303a, #171c21); flex: 0 0 auto; }
+      .pv-hn { font: 13px "JetBrains Mono", monospace; }
+      .pv-nm { color: var(--muted); font-size: 12px; }
 
-      .disclaimer { color: var(--muted); font-size: 12.5px; }
-      footer { color: var(--muted); font-size: 13px; padding: 26px 0 48px; border-top: 1px solid var(--border); margin-top: 20px; }
-      footer a { color: var(--muted); }
-      footer a:hover { color: var(--text); }
+      .disclaimer { color: var(--muted2); font-size: 12.5px; text-align: center; margin: 24px auto 0; max-width: 60ch; }
+      footer { color: var(--muted); font-size: 13px; padding: 24px 0 48px; text-align: center; }
+      footer a { color: var(--muted); } footer a:hover { color: var(--text); }
+      .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(20px); opacity: 0; background: var(--card); border: 1px solid var(--ok); color: var(--text); padding: 11px 18px; border-radius: 999px; font-size: 14px; font-weight: 500; transition: all .22s ease; z-index: 60; pointer-events: none; box-shadow: 0 12px 40px rgba(0,0,0,.5); }
+      .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-      /* DICO support modal */
-      .modal-overlay {
-        position: fixed; inset: 0; background: rgba(3,5,8,.72); backdrop-filter: blur(4px);
-        display: none; align-items: center; justify-content: center; padding: 20px; z-index: 50;
-      }
+      /* DICO modal */
+      .modal-overlay { position: fixed; inset: 0; background: rgba(3,5,8,.74); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 80; }
       .modal-overlay.open { display: flex; animation: fade .18s ease; }
       @keyframes fade { from { opacity: 0 } to { opacity: 1 } }
-      .modal {
-        width: 100%; max-width: 400px; border-radius: 18px; overflow: hidden;
-        border: 1px solid #2c2650; background: linear-gradient(180deg, #171334 0%, #120f26 100%);
-        box-shadow: 0 30px 80px -20px rgba(0,0,0,.7); animation: pop .2s ease;
-      }
-      @keyframes pop { from { transform: translateY(10px) scale(.98); opacity: 0 } to { transform: none; opacity: 1 } }
-      .modal .top {
-        position: relative; padding: 26px 22px 18px; text-align: center;
-        background:
-          radial-gradient(80% 120% at 30% 0%, rgba(139,123,240,.35), transparent 60%),
-          radial-gradient(60% 100% at 90% 20%, rgba(245,197,66,.18), transparent 60%);
-      }
-      .modal .mascot { width: 74px; height: 74px; margin: 0 auto 10px; filter: drop-shadow(0 0 16px rgba(139,123,240,.6)); }
-      .modal h3 { margin: 0 0 6px; font-size: 20px; color: #fff; }
-      .modal .top p { margin: 0; color: #c9c0ff; font-size: 14px; }
-      .modal .tagline { margin-top: 8px; font: 12px "JetBrains Mono", monospace; color: var(--dico-gold); letter-spacing: .04em; }
-      .modal .actions { padding: 16px 18px 20px; display: grid; gap: 10px; }
-      .modal .play {
-        display: flex; align-items: center; justify-content: center; gap: 10px;
-        background: var(--dico-gold); color: #241542; font-weight: 800; text-transform: uppercase; letter-spacing: .04em;
-        border: 0; border-radius: 12px; padding: 13px; font-size: 14px; cursor: pointer; text-decoration: none;
-      }
-      .modal .play:hover { filter: brightness(1.05); text-decoration: none; }
-      .modal .row2 { display: flex; gap: 10px; }
-      .modal .row2 a, .modal .row2 button { flex: 1; }
-      .modal .mini {
-        display: flex; align-items: center; justify-content: center; gap: 6px;
-        border: 1px solid #342d5e; background: transparent; color: #c9c0ff; border-radius: 12px;
-        padding: 11px; font: inherit; font-weight: 600; font-size: 13px; cursor: pointer; text-decoration: none;
-      }
-      .modal .mini:hover { border-color: var(--dico); color: #fff; text-decoration: none; }
-      .modal .mini.soon { opacity: .6; cursor: default; }
+      .modal { width: 100%; max-width: 400px; border-radius: 20px; overflow: hidden; border: 1px solid #2c2650; background: linear-gradient(180deg, #191436 0%, #120f26 100%); box-shadow: 0 34px 90px -20px rgba(0,0,0,.75); animation: pop .22s cubic-bezier(.2,.9,.3,1.2); }
+      @keyframes pop { from { transform: translateY(12px) scale(.96); opacity: 0 } to { transform: none; opacity: 1 } }
+      .modal .top { position: relative; padding: 28px 22px 18px; text-align: center; background: radial-gradient(80% 120% at 30% 0%, rgba(139,123,240,.38), transparent 60%), radial-gradient(60% 100% at 90% 15%, rgba(245,197,66,.2), transparent 60%); }
+      .modal .mascot { width: 76px; height: 76px; margin: 0 auto 10px; filter: drop-shadow(0 0 18px rgba(139,123,240,.65)); }
+      .modal h3 { margin: 0 0 7px; font-size: 21px; color: #fff; }
+      .modal .top p { margin: 0; color: #cbc3ff; font-size: 14px; }
+      .modal .tagline { margin-top: 9px; font: 12px "JetBrains Mono", monospace; color: var(--gold); letter-spacing: .04em; }
+      .modal .actions { padding: 16px 18px 20px; display: grid; gap: 11px; }
+      .modal .play { display: flex; align-items: center; justify-content: center; gap: 10px; background: var(--gold); color: #241542; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; border: 0; border-radius: 13px; padding: 14px; font-size: 14px; cursor: pointer; text-decoration: none; }
+      .modal .play:hover { filter: brightness(1.06); text-decoration: none; }
+      .modal .soon { text-align: center; font: 12px "JetBrains Mono", monospace; color: #9b93c9; }
       .modal .later { background: transparent; border: 0; color: #8983b5; font: inherit; font-size: 13px; padding: 6px; cursor: pointer; }
       .modal .later:hover { color: #fff; }
-
-      .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px); opacity: 0; background: var(--card); border: 1px solid var(--ok); color: var(--text); padding: 10px 16px; border-radius: 999px; font-size: 14px; transition: all .2s ease; z-index: 60; pointer-events: none; }
-      .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     </style>
   </head>
   <body>
@@ -208,7 +184,7 @@
           X <b>Unfollowers</b>
         </span>
         <span class="top-actions">
-          <button class="btn support" id="supportBtn">💜 <span data-t="en">Support</span><span data-t="tr">Destek</span></button>
+          <button class="support-btn" id="supportBtn">💜 <span data-t="en">Support</span><span data-t="tr">Destek</span></button>
           <span class="lang" role="group" aria-label="Language">
             <button data-set="en" onclick="setLang('en')">EN</button>
             <button data-set="tr" onclick="setLang('tr')">TR</button>
@@ -217,81 +193,100 @@
       </header>
 
       <main>
-        <div class="hero">
+        <section class="hero">
+          <span class="eyebrow">✕ <span data-t="en">X (Twitter) tool · 100% in your browser</span><span data-t="tr">X (Twitter) aracı · %100 tarayıcında</span></span>
           <h1>
-            <span data-t="en">See who doesn't follow you back on <span class="x">X</span></span>
-            <span data-t="tr">Seni <span class="x">X</span>'te geri takip etmeyenleri gör</span>
+            <span data-t="en">See who doesn't<br><span class="grad">follow you back</span></span>
+            <span data-t="tr">Seni geri takip<br><span class="grad">etmeyenleri gör</span></span>
           </h1>
           <p class="lede">
-            <span data-t="en">A tiny console tool. It scrolls your own following &amp; followers lists right in your browser and shows who doesn't follow you back. Nothing is uploaded — your data never leaves this tab.</span>
-            <span data-t="tr">Küçük bir konsol aracı. Kendi takip &amp; takipçi listelerini tarayıcının içinde kaydırıp seni geri takip etmeyenleri gösterir. Hiçbir şey yüklenmez — verin bu sekmeden dışarı çıkmaz.</span>
+            <span data-t="en">One click copies a tiny script. Paste it into your X tab and it finds every account you follow that doesn't follow you back — all in your browser.</span>
+            <span data-t="tr">Tek tıkla küçük bir script kopyalanır. X sekmene yapıştır; takip ettiğin ama seni geri takip etmeyen herkesi bulur — hepsi tarayıcında.</span>
           </p>
-          <div class="badges">
-            <span class="pill"><b>●</b> <span data-t="en">100% in your browser</span><span data-t="tr">%100 tarayıcında</span></span>
+
+          <div class="cta">
+            <button class="btn primary" id="copyBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span data-t="en">Copy the code</span><span data-t="tr">Kodu kopyala</span>
+            </button>
+            <a class="btn ghost" id="openXBtn" href="https://x.com/home" target="_blank" rel="noopener">
+              <span data-t="en">Open X</span><span data-t="tr">X'i aç</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </a>
+          </div>
+
+          <div class="trust">
+            <span class="pill"><b>●</b> <span data-t="en">Nothing is uploaded</span><span data-t="tr">Hiçbir şey yüklenmez</span></span>
             <span class="pill"><span data-t="en">Read-only — never follows/unfollows</span><span data-t="tr">Salt-okunur — takip edip bırakmaz</span></span>
             <span class="pill"><span data-t="en">No login, no tokens</span><span data-t="tr">Giriş yok, token yok</span></span>
           </div>
+        </section>
+
+        <div class="section-title"><span data-t="en">How it works · about a minute</span><span data-t="tr">Nasıl çalışır · ~1 dakika</span></div>
+        <div class="steps">
+          <div class="step">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div>
+            <span class="n">01</span>
+            <h3><span data-t="en">Copy the code</span><span data-t="tr">Kodu kopyala</span></h3>
+            <p><span data-t="en">Hit the blue button above — the script lands on your clipboard.</span><span data-t="tr">Yukarıdaki mavi butona bas — script panona kopyalanır.</span></p>
+          </div>
+          <div class="step">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3l7 8.5M20 3l-7 8.5M4 21l7-8.5M20 21l-7-8.5"/></svg></div>
+            <span class="n">02</span>
+            <h3><span data-t="en">Open X, signed in</span><span data-t="tr">X'i açık ve giriş yapmış</span></h3>
+            <p><span data-t="en">Go to <a href="https://x.com/home" target="_blank" rel="noopener">x.com</a> — any page is fine, just be logged in.</span><span data-t="tr"><a href="https://x.com/home" target="_blank" rel="noopener">x.com</a>'a git — hangi sayfa olursa, yeter ki giriş yapmış ol.</span></p>
+          </div>
+          <div class="step">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+            <span class="n">03</span>
+            <h3><span data-t="en">Paste in the console</span><span data-t="tr">Konsola yapıştır</span></h3>
+            <p><span data-t="en">Press <kbd>F12</kbd> (or <kbd>⌘⌥J</kbd>), open <b>Console</b>, paste, and hit Enter.</span><span data-t="tr"><kbd>F12</kbd> (ya da <kbd>⌘⌥J</kbd>), <b>Console</b> sekmesi, yapıştır, Enter.</span></p>
+          </div>
+          <div class="step">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+            <span class="n">04</span>
+            <h3><span data-t="en">Let it scan</span><span data-t="tr">Taramasını bekle</span></h3>
+            <p><span data-t="en">Two small windows pop up, scroll themselves, and close. The result panel appears. <b>Allow pop-ups</b> if asked.</span><span data-t="tr">İki küçük pencere açılır, kendi kendine kaydırır ve kapanır. Sonuç paneli çıkar. Sorarsa <b>pop-up'a izin ver</b>.</span></p>
+          </div>
         </div>
 
-        <section class="card">
-          <h2><span data-t="en">How to use</span><span data-t="tr">Nasıl kullanılır</span></h2>
-          <p class="sub"><span data-t="en">Takes about a minute. Do it on a computer (Chrome, Edge or Firefox).</span><span data-t="tr">Yaklaşık bir dakika. Bilgisayarda yapın (Chrome, Edge ya da Firefox).</span></p>
-
-          <ol class="steps">
-            <li>
-              <h3><span data-t="en">Copy the code</span><span data-t="tr">Kodu kopyala</span></h3>
-              <p><span data-t="en">Click the button below — it copies the scanner to your clipboard.</span><span data-t="tr">Aşağıdaki butona bas — tarayıcıyı panoya kopyalar.</span></p>
-              <div class="codewrap">
-                <div class="codebar">
-                  <span class="fname">x-unfollowers.js</span>
-                  <button class="btn copybtn" id="copyBtn"><span data-t="en">Copy code</span><span data-t="tr">Kodu kopyala</span></button>
-                </div>
-                <pre class="code" id="codeview" tabindex="0"></pre>
-              </div>
-            </li>
-            <li>
-              <h3><span data-t="en">Open X and your Following list</span><span data-t="tr">X'i ve Takip Ettiklerin listesini aç</span></h3>
-              <p>
-                <span data-t="en">Sign in at <a href="https://x.com/home" target="_blank" rel="noopener">x.com</a>, then open <b>your profile → Following</b> (URL ends with <kbd>/following</kbd>).</span>
-                <span data-t="tr"><a href="https://x.com/home" target="_blank" rel="noopener">x.com</a>'a giriş yap, sonra <b>profilin → Takip Edilenler</b> sayfasını aç (URL <kbd>/following</kbd> ile biter).</span>
-              </p>
-            </li>
-            <li>
-              <h3><span data-t="en">Open the console &amp; paste</span><span data-t="tr">Konsolu aç &amp; yapıştır</span></h3>
-              <p><span data-t="en">Press <kbd>F12</kbd> (or <kbd>⌘⌥J</kbd> on Mac), go to the <b>Console</b> tab, paste, and hit Enter. It auto-scrolls and collects your following.</span><span data-t="tr"><kbd>F12</kbd>'ye bas (Mac'te <kbd>⌘⌥J</kbd>), <b>Console</b> sekmesine geç, yapıştır ve Enter'a bas. Otomatik kaydırıp takip ettiklerini toplar.</span></p>
-            </li>
-            <li>
-              <h3><span data-t="en">Do the same on Followers</span><span data-t="tr">Aynısını Takipçiler'de yap</span></h3>
-              <p><span data-t="en">When it's done it shows a button to open your <b>Followers</b> list — paste the code once more there, and the result panel appears with everyone who doesn't follow you back.</span><span data-t="tr">Bitince <b>Takipçiler</b> listeni açan bir buton gösterir — kodu orada bir kez daha yapıştır, seni geri takip etmeyen herkes sonuç panelinde çıkar.</span></p>
-            </li>
-          </ol>
-        </section>
-
-        <section class="card">
-          <h2><span data-t="en">What the result looks like</span><span data-t="tr">Sonuç böyle görünür</span></h2>
-          <p class="sub"><span data-t="en">A panel over the page. Nothing on your account changes.</span><span data-t="tr">Sayfanın üstünde bir panel. Hesabında hiçbir şey değişmez.</span></p>
-          <div class="preview" aria-hidden="true">
-            <div class="pv-head">
-              <span class="pv-title"><span data-t="en">Don't follow you back</span><span data-t="tr">Seni geri takip etmeyenler</span></span>
-              <span class="pv-count">37</span>
-            </div>
-            <div class="row"><span class="av"></span><span><span class="hn">@some_account</span> · <span class="nm">Some Account</span></span></div>
-            <div class="row"><span class="av"></span><span><span class="hn">@another_one</span> · <span class="nm">Another One</span></span></div>
-            <div class="row"><span class="av"></span><span><span class="hn">@ghost_follow</span> · <span class="nm">Ghost</span></span></div>
+        <details class="codebox">
+          <summary>
+            <span><span data-t="en">View the code</span><span data-t="tr">Kodu göster</span> <span class="fname">· x-unfollowers.js</span></span>
+            <span class="chev">›</span>
+          </summary>
+          <div class="codebar">
+            <span class="fname">x-unfollowers.js</span>
+            <button class="copysm" id="copyBtn2">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span data-t="en">Copy</span><span data-t="tr">Kopyala</span>
+            </button>
           </div>
-        </section>
+          <pre class="code" id="codeview" tabindex="0"></pre>
+        </details>
+
+        <div class="section-title"><span data-t="en">The result looks like this</span><span data-t="tr">Sonuç böyle görünür</span></div>
+        <div class="preview" aria-hidden="true">
+          <div class="pv-head">
+            <span class="pv-title"><span data-t="en">Don't follow you back</span><span data-t="tr">Seni geri takip etmeyenler</span></span>
+            <span class="pv-count">37</span>
+          </div>
+          <div class="pv-row"><span class="pv-av"></span><span><span class="pv-hn">@some_account</span> <span class="pv-nm">· Some Account</span></span></div>
+          <div class="pv-row"><span class="pv-av"></span><span><span class="pv-hn">@ghost_follow</span> <span class="pv-nm">· Ghost</span></span></div>
+          <div class="pv-row"><span class="pv-av"></span><span><span class="pv-hn">@never_back</span> <span class="pv-nm">· No Return</span></span></div>
+        </div>
 
         <p class="disclaimer">
-          <span data-t="en">Not affiliated with X Corp. or Twitter. This runs in your own browser session, reads only your own lists, and never performs any action on your account. Inspired by cobanov's Instagram tool and davidarroyo1234/InstagramUnfollowers.</span>
-          <span data-t="tr">X Corp. veya Twitter ile ilişkili değildir. Kendi tarayıcı oturumunda çalışır, yalnızca kendi listelerini okur ve hesabında hiçbir işlem yapmaz. cobanov'un Instagram aracından ve davidarroyo1234/InstagramUnfollowers'tan esinlenildi.</span>
+          <span data-t="en">Not affiliated with X Corp. or Twitter. Runs in your own session, reads only your own lists, never acts on your account. Inspired by cobanov's Instagram tool.</span>
+          <span data-t="tr">X Corp. veya Twitter ile ilişkili değildir. Kendi oturumunda çalışır, yalnızca kendi listelerini okur, hesabında hiçbir işlem yapmaz. cobanov'un Instagram aracından esinlenildi.</span>
         </p>
       </main>
 
       <footer>
-        <span data-t="en">Made by <a href="https://yasntrk.github.io">Yasin Türk</a> · </span>
-        <span data-t="tr"><a href="https://yasntrk.github.io">Yasin Türk</a> tarafından · </span>
-        <a href="/dico/">DICO</a> ·
-        <a href="https://github.com/yasntrk">GitHub</a>
+        <span data-t="en">Made by <a href="https://yasntrk.github.io">Yasin Türk</a></span>
+        <span data-t="tr"><a href="https://yasntrk.github.io">Yasin Türk</a> yaptı</span>
+        · <a href="https://play.google.com/store/apps/details?id=io.github.yasntrk.dico" target="_blank" rel="noopener">DICO</a>
+        · <a href="https://github.com/yasntrk" target="_blank" rel="noopener">GitHub</a>
       </footer>
     </div>
 
@@ -310,20 +305,16 @@
           </svg>
           <h3 id="dicoTitle">💜 <span data-t="en">Enjoying this?</span><span data-t="tr">Beğendin mi?</span></h3>
           <p>
-            <span data-t="en">This tool is free. If it helped, check out our game <b>DICO</b> on Google Play to support us.</span>
-            <span data-t="tr">Bu araç ücretsiz. İşine yaradıysa, bizi desteklemek için oyunumuz <b>DICO</b>'ya Google Play'den göz at.</span>
+            <span data-t="en">This tool is free. If it helped, install our game <b>DICO</b> from Google Play — that's what keeps it going. 🙏</span>
+            <span data-t="tr">Bu araç ücretsiz. İşine yaradıysa, oyunumuz <b>DICO</b>'yu Google Play'den indir — bizi asıl bu destekliyor. 🙏</span>
           </p>
           <div class="tagline">kaderi oku, şansı ayarla</div>
         </div>
         <div class="actions">
-          <!-- TODO: replace DICO_PLAY with the real Google Play listing URL for DICO. -->
           <a class="play" id="dicoPlay" href="#" target="_blank" rel="noopener">
             ▶ <span data-t="en">Get DICO on Google Play</span><span data-t="tr">DICO'yu Google Play'den al</span>
           </a>
-          <div class="row2">
-            <a class="mini" href="/dico/">🎮 <span data-t="en">Play in browser</span><span data-t="tr">Tarayıcıda oyna</span></a>
-            <span class="mini soon"> <span data-t="en">iOS — soon</span><span data-t="tr">iOS — yakında</span></span>
-          </div>
+          <div class="soon"><span data-t="en">iOS — coming soon</span><span data-t="tr">iOS — çok yakında</span></div>
           <button class="later" id="dicoLater"><span data-t="en">Maybe later</span><span data-t="tr">Belki sonra</span></button>
         </div>
       </div>
@@ -331,42 +322,39 @@
 
     <div class="toast" id="toast"></div>
 
-    <!-- The scanner. Single source of truth for the copy button and the preview. -->
+    <!-- The scanner: single source of truth for the copy buttons and the preview. -->
     <script type="text/plain" id="snippet">/* X / Twitter — who doesn't follow you back?
- * Runs in your own browser tab on x.com, using the lists YOU already see.
- * It just auto-scrolls your Following / Followers pages and reads the @handles.
- * Nothing is uploaded. It NEVER follows or unfollows anyone. Read-only.
+ * Runs in your own x.com tab. It briefly pops open your Following and
+ * Followers lists, auto-scrolls them, reads the @handles, and shows who
+ * doesn't follow you back. Nothing is uploaded. It NEVER follows or
+ * unfollows anyone — read-only.
  *
- * Made with love by yasntrk — support DICO: https://play.google.com/store/apps/details?id=io.github.yasntrk.dico  (iOS soon)
+ * Support DICO 💜 https://play.google.com/store/apps/details?id=io.github.yasntrk.dico  (iOS soon)
  *
- * HOW: open x.com/<you>/following -> paste -> Enter. Then x.com/<you>/followers -> paste again.
+ * HOW: sign in at x.com, open the console (F12), paste this, press Enter,
+ * and allow pop-ups if the browser asks.
  */
 (async () => {
-  const KEY_F = "xunf_following", KEY_R = "xunf_followers";
   const PLAY = "https://play.google.com/store/apps/details?id=io.github.yasntrk.dico";
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-  const path = location.pathname.toLowerCase().replace(/\/+$/, "");
-  const onFollowing = /\/following$/.test(path);
-  const onFollowers = /\/(followers|verified_followers)$/.test(path);
 
   let box = document.getElementById("xunf-box");
-  if (!box) {
-    box = document.createElement("div");
-    box.id = "xunf-box";
-    box.style.cssText = "position:fixed;top:16px;right:16px;z-index:999999;width:340px;max-height:82vh;overflow:auto;background:#16191d;color:#e7e9ea;border:1px solid #2b3036;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.6);font:14px/1.5 system-ui,sans-serif;padding:14px";
-    document.body.appendChild(box);
-  }
-  const say = (html) => { box.innerHTML = html; };
+  if (!box) { box = document.createElement("div"); box.id = "xunf-box"; document.body.appendChild(box); }
+  box.style.cssText = "position:fixed;top:16px;right:16px;z-index:2147483647;width:340px;max-height:84vh;overflow:auto;background:#14181d;color:#eef1f3;border:1px solid #2f3742;border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.65);font:14px/1.5 -apple-system,system-ui,sans-serif;padding:16px";
+  const say = (h) => { box.innerHTML = h; };
 
-  if (!onFollowing && !onFollowers) {
-    say('<b style="color:#1d9bf0">X Unfollowers</b><p style="color:#8b949e">Open your <b>Following</b> list first:<br>x.com/&lt;your-handle&gt;/following<br>then paste this again.</p>');
-    return;
+  const RES = ["home","explore","notifications","messages","i","settings","search","compose","bookmarks","jobs","lists"];
+  let me = null;
+  const pl = document.querySelector('[data-testid="AppTabBar_Profile_Link"]');
+  if (pl) me = (pl.getAttribute("href") || "").replace(/^\//, "").split("/")[0];
+  if (!me) {
+    const seg = location.pathname.split("/").filter(Boolean);
+    if (seg[0] && !RES.includes(seg[0].toLowerCase())) me = seg[0];
   }
+  if (!me) { say('<b style="color:#e0245e">Couldn’t find your handle.</b><div style="color:#8b949e;margin-top:4px">Open x.com/home while signed in, then run again.</div>'); return; }
 
-  const kind = onFollowing ? "following" : "followers";
-  const found = new Map();
-  const grab = () => {
-    document.querySelectorAll('[data-testid="UserCell"]').forEach((cell) => {
+  const collect = (doc, into) => {
+    doc.querySelectorAll('[data-testid="UserCell"]').forEach((cell) => {
       let handle = null, name = "";
       cell.querySelectorAll("span").forEach((s) => {
         const t = s.textContent.trim();
@@ -379,64 +367,74 @@
       if (handle) {
         const nm = cell.querySelector('a[href^="/"] span');
         if (nm) name = nm.textContent.trim();
-        found.set(handle.toLowerCase(), { handle, name });
+        into.set(handle.toLowerCase(), { handle: handle, name: name });
       }
     });
   };
 
-  say('<b style="color:#1d9bf0">Scanning your ' + kind + '…</b><p style="color:#8b949e">Auto-scrolling. Keep this tab in front. Collected: <b id="xunf-n">0</b></p>');
-  const nEl = () => document.getElementById("xunf-n");
-  let stable = 0, last = 0;
-  for (let i = 0; i < 4000 && stable < 10; i++) {
-    grab();
-    if (nEl()) nEl().textContent = String(found.size);
-    window.scrollBy(0, Math.max(700, window.innerHeight * 0.9));
-    await sleep(450);
-    if (found.size === last) stable++; else { stable = 0; last = found.size; }
+  const scrape = async (kind) => {
+    const w = window.open(location.origin + "/" + me + "/" + kind, "xunf_" + kind, "width=560,height=880");
+    if (!w) { const e = new Error("popup"); e.popup = true; throw e; }
+    try { w.focus(); } catch (e) {}
+    const t0 = Date.now();
+    while (!(w.document && w.document.querySelector('[data-testid="UserCell"]'))) {
+      if (w.closed) throw new Error("The pop-up was closed too early.");
+      if (Date.now() - t0 > 40000) break;
+      await sleep(600);
+    }
+    const into = new Map();
+    let stable = 0, last = 0;
+    for (let i = 0; i < 6000 && stable < 12; i++) {
+      if (w.closed) break;
+      try { collect(w.document, into); } catch (e) {}
+      say('Scanning your <b>' + kind + '</b> … <b style="color:#1d9bf0;font-size:16px">' + into.size + '</b>'
+        + '<div style="color:#8b949e;font-size:12px;margin-top:4px">A small window is scrolling for you. It closes itself.</div>');
+      try { w.scrollTo(0, 99999999); } catch (e) {}
+      await sleep(650);
+      if (into.size === last) stable++; else { stable = 0; last = into.size; }
+    }
+    try { collect(w.document, into); } catch (e) {}
+    try { w.close(); } catch (e) {}
+    return into;
+  };
+
+  try {
+    say('<b style="color:#1d9bf0">Starting…</b><div style="color:#8b949e;font-size:12px;margin-top:4px">Two small windows will pop up, one after another. If the browser asks, <b>allow pop-ups</b> for x.com.</div>');
+    await sleep(700);
+    const following = await scrape("following");
+    const followers = await scrape("followers");
+    try { window.focus(); } catch (e) {}
+
+    if (!following.size) { say('<b style="color:#e0245e">No accounts read.</b><div style="color:#8b949e;margin-top:4px">X may be rate-limiting. Wait a minute, then run again and keep the pop-up in front.</div>'); return; }
+
+    const notBack = [...following.values()].filter((u) => !followers.has(u.handle.toLowerCase()));
+    const rows = notBack.map((u) =>
+      '<a href="https://x.com/' + u.handle + '" target="_blank" rel="noopener" style="display:flex;gap:9px;align-items:center;padding:8px 0;border-top:1px solid #2b3036;text-decoration:none;color:#eef1f3">'
+      + '<span style="width:26px;height:26px;border-radius:99px;background:#24303a;flex:0 0 auto"></span>'
+      + '<span style="min-width:0"><b style="font-family:ui-monospace,monospace">@' + u.handle + '</b>'
+      + (u.name ? '<div style="color:#8b949e;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + u.name.replace(/</g, "&lt;") + '</div>' : "")
+      + '</span></a>'
+    ).join("");
+    const handles = notBack.map((u) => "@" + u.handle).join(" ");
+    say(
+      '<div style="display:flex;justify-content:space-between;align-items:center">'
+      + '<b style="font-size:15px">Don’t follow you back</b><b style="color:#1d9bf0;font-size:20px">' + notBack.length + '</b></div>'
+      + '<div style="color:#8b949e;font-size:12px;margin:2px 0 10px">of ' + following.size + ' you follow</div>'
+      + '<button id="xunf-copy" style="width:100%;background:#1d9bf0;color:#fff;border:0;border-radius:10px;padding:9px;cursor:pointer;font:inherit;font-weight:700;margin-bottom:8px">Copy all @handles</button>'
+      + '<div style="max-height:42vh;overflow:auto">' + (rows || '<div style="color:#2fb86b;padding:10px 0">Everyone you follow follows you back 🎉</div>') + '</div>'
+      + '<a href="' + PLAY + '" target="_blank" rel="noopener" style="display:flex;gap:8px;align-items:center;justify-content:center;margin-top:12px;padding:11px;border-radius:10px;background:#f5c542;color:#241542;font-weight:800;text-decoration:none">💜 Support us — DICO on Google Play</a>'
+      + '<div style="text-align:center;color:#8b949e;font-size:11px;margin-top:6px">iOS coming soon · not affiliated with X</div>'
+    );
+    const cp = document.getElementById("xunf-copy");
+    if (cp) cp.onclick = () => { try { navigator.clipboard.writeText(handles); } catch (e) {} cp.textContent = "Copied!"; };
+    console.log("[X Unfollowers] " + notBack.length + " of " + following.size + " don’t follow back:\n" + handles);
+  } catch (err) {
+    if (err && err.popup) {
+      say('<b style="color:#e0245e">Pop-ups are blocked.</b><div style="color:#8b949e;margin-top:4px">Allow pop-ups for x.com (icon in the address bar), then run the code again.</div>');
+    } else {
+      say('<b style="color:#e0245e">Scan interrupted.</b><div style="color:#8b949e;margin-top:4px">Run it again and keep the pop-up window in front.<br><span style="opacity:.6">' + String((err && err.message) || err) + '</span></div>');
+    }
   }
-  grab();
-  const list = [...found.values()];
-  try { localStorage.setItem(onFollowing ? KEY_F : KEY_R, JSON.stringify(list)); } catch (e) {}
-
-  if (onFollowing) {
-    const you = location.pathname.split("/")[1];
-    say('<b style="color:#2fb86b">✓ Following collected: ' + list.length + '</b>'
-      + '<p style="color:#8b949e">Now open your <b>Followers</b> list and paste this code again.</p>'
-      + '<a href="/' + you + '/followers" style="display:block;text-align:center;background:#1d9bf0;color:#fff;padding:10px;border-radius:10px;text-decoration:none;font-weight:700">Open Followers →</a>');
-    return;
-  }
-
-  // on followers: compute the diff
-  let following = [];
-  try { following = JSON.parse(localStorage.getItem(KEY_F) || "[]"); } catch (e) {}
-  if (!following.length) {
-    say('<b style="color:#e0245e">No "following" data yet.</b><p style="color:#8b949e">Open your <b>Following</b> list first, paste the code there, then come back here.</p>');
-    return;
-  }
-  const followerSet = new Set(list.map((u) => u.handle.toLowerCase()));
-  const notBack = following.filter((u) => !followerSet.has(u.handle.toLowerCase()));
-
-  const rows = notBack.map((u) =>
-    '<a href="https://x.com/' + u.handle + '" target="_blank" rel="noopener" style="display:flex;gap:8px;align-items:center;padding:7px 0;border-top:1px solid #2b3036;text-decoration:none;color:#e7e9ea">'
-    + '<span style="width:24px;height:24px;border-radius:99px;background:#24303a;flex:0 0 auto"></span>'
-    + '<span><b style="font-family:ui-monospace,monospace">@' + u.handle + '</b>'
-    + (u.name ? ' <span style="color:#8b949e;font-size:12px">· ' + u.name.replace(/</g, "&lt;") + '</span>' : "")
-    + '</span></a>'
-  ).join("");
-
-  const handles = notBack.map((u) => "@" + u.handle).join(" ");
-  say(
-    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
-    + '<b>Don’t follow you back</b><b style="color:#1d9bf0;font-size:18px">' + notBack.length + '</b></div>'
-    + '<div style="color:#8b949e;font-size:12px;margin-bottom:8px">of ' + following.length + ' you follow</div>'
-    + '<button id="xunf-copy" style="width:100%;background:#1b1f24;color:#e7e9ea;border:1px solid #2b3036;border-radius:10px;padding:8px;cursor:pointer;font:inherit;margin-bottom:6px">Copy all @handles</button>'
-    + rows
-    + '<a href="' + PLAY + '" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:12px;padding:9px;border-radius:10px;background:#f5c542;color:#241542;font-weight:800;text-decoration:none">💜 Support us — DICO on Google Play</a>'
-    + '<div style="text-align:center;color:#8b949e;font-size:11px;margin-top:6px">iOS coming soon · not affiliated with X</div>'
-  );
-  const cp = document.getElementById("xunf-copy");
-  if (cp) cp.onclick = () => { navigator.clipboard.writeText(handles); cp.textContent = "Copied!"; };
-  console.log("[X Unfollowers] " + notBack.length + " of " + following.length + " don't follow back:", handles);
 })();</script>
 
     <script>
@@ -450,17 +448,15 @@
       }
       window.setLang = setLang;
 
-      // Single source of truth: show the scanner (from the text/plain block) in the code box.
       const snippet = document.getElementById("snippet").textContent.trim();
       document.getElementById("codeview").textContent = snippet;
 
       let toastTimer;
       function toast(msg) {
         const t = document.getElementById("toast");
-        t.textContent = msg;
-        t.classList.add("show");
+        t.textContent = msg; t.classList.add("show");
         clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => t.classList.remove("show"), 2400);
+        toastTimer = setTimeout(() => t.classList.remove("show"), 2600);
       }
 
       const modal = document.getElementById("dicoModal");
@@ -471,32 +467,27 @@
       modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
       document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
 
-      const copyBtn = document.getElementById("copyBtn");
-      const enSpan = copyBtn.querySelector('[data-t="en"]');
-      const trSpan = copyBtn.querySelector('[data-t="tr"]');
-      copyBtn.addEventListener("click", async () => {
+      async function copyCode(btn, opensModal) {
         try {
           await navigator.clipboard.writeText(snippet);
         } catch (e) {
           const ta = document.createElement("textarea");
-          ta.value = snippet;
-          document.body.appendChild(ta);
-          ta.select();
+          ta.value = snippet; document.body.appendChild(ta); ta.select();
           try { document.execCommand("copy"); } catch (e2) {}
           ta.remove();
         }
         const tr = document.documentElement.getAttribute("data-lang") === "tr";
-        copyBtn.classList.add("copied");
-        enSpan.textContent = "Copied!";
-        trSpan.textContent = "Kopyalandı!";
         toast(tr ? "Kod kopyalandı — x.com konsoluna yapıştır" : "Code copied — paste it in the x.com console");
-        setTimeout(() => {
-          copyBtn.classList.remove("copied");
-          enSpan.textContent = "Copy code";
-          trSpan.textContent = "Kodu kopyala";
-        }, 2000);
-        openModal();
-      });
+        const en = btn.querySelector('[data-t="en"]'), trs = btn.querySelector('[data-t="tr"]');
+        const oe = en.textContent, ot = trs.textContent;
+        btn.classList.add("copied");
+        en.textContent = "Copied ✓"; trs.textContent = "Kopyalandı ✓";
+        setTimeout(() => { btn.classList.remove("copied"); en.textContent = oe; trs.textContent = ot; }, 2000);
+        if (opensModal) openModal();
+      }
+
+      document.getElementById("copyBtn").addEventListener("click", (e) => copyCode(e.currentTarget, true));
+      document.getElementById("copyBtn2").addEventListener("click", (e) => copyCode(e.currentTarget, true));
     </script>
   </body>
 </html>
