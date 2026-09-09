@@ -49,9 +49,9 @@ const latest = posts.slice(0, 3);
 
   <!-- Play DICO -->
   <section class="section" aria-labelledby="dico-h">
-    <a class="dico-banner" href="/dico/">
+    <div class="dico-banner">
       <div class="dico-copy">
-        <p class="dico-kicker">now playable in your browser</p>
+        <p class="dico-kicker">out now on google play</p>
         <h2 id="dico-h" class="dico-title">DICO</h2>
         <p class="dico-sub">
           An occult-carnival dice roguelike I built in Godot — read fate, rig
@@ -59,14 +59,23 @@ const latest = posts.slice(0, 3);
           rites, five escalating stakes, unlockable relics. Türkçe & English,
           desktop and mobile.
         </p>
-        <span class="dico-cta">Play in browser →</span>
+        <div class="dico-cta-row">
+          <a
+            class="dico-cta"
+            href="https://play.google.com/store/apps/details?id=io.github.yasntrk.dico"
+            target="_blank"
+            rel="noopener"
+            aria-label="Get DICO on Google Play"
+          >▶ Get it on Google Play</a>
+          <a class="dico-cta-ghost" href="/dico/">Play in browser →</a>
+        </div>
       </div>
       <div class="dico-dice" aria-hidden="true">
         <span class="pip-die d1"><i></i></span>
         <span class="pip-die d2"><i></i><i></i><i></i></span>
         <span class="pip-die d3"><i></i><i></i><i></i><i></i><i></i><i></i></span>
       </div>
-    </a>
+    </div>
   </section>
 
   <hr class="divider" />
@@ -257,8 +266,16 @@ const latest = posts.slice(0, 3);
     font-size: 0.95rem;
     margin: 0 0 1rem;
   }
+  .dico-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+  }
   .dico-cta {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
     font-family: var(--font-mono);
     font-size: 0.9rem;
     font-weight: 600;
@@ -266,6 +283,31 @@ const latest = posts.slice(0, 3);
     background: #f6c445;
     padding: 0.5rem 1rem;
     border-radius: 8px;
+    text-decoration: none;
+    transition: filter 0.18s var(--ease);
+  }
+  .dico-cta:hover {
+    filter: brightness(1.06);
+  }
+  .dico-cta-ghost {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #cdbff2;
+    background: transparent;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #4a3a86;
+    text-decoration: none;
+    transition:
+      border-color 0.18s var(--ease),
+      color 0.18s var(--ease);
+  }
+  .dico-cta-ghost:hover {
+    border-color: #f6c445;
+    color: #fff;
   }
   /* Animated dice cluster */
   .dico-dice {
