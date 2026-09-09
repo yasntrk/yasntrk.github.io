@@ -115,6 +115,17 @@
       .trust { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 6px; }
       .pill { font-size: 12.5px; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 5px 12px; background: rgba(255,255,255,.02); }
       .pill b { color: var(--ok); }
+      .note {
+        margin: 20px 0 0;
+        padding: 12px 15px;
+        border: 1px solid #3c3520;
+        background: rgba(245, 197, 66, 0.06);
+        border-radius: 12px;
+        color: #d8cfa8;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+      .note b { color: #f5d980; }
 
       /* steps */
       .section-title { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted2); text-align: center; margin: 46px 0 18px; }
@@ -250,6 +261,11 @@
           </div>
         </div>
 
+        <p class="note">
+          <span data-t="en">⚠️ Heads-up: when it runs, your browser may ask to <b>allow pop-ups</b> — click <b>Allow</b> (two little windows do the scanning, then close themselves). You can close the result panel any time with the <b>✕</b> in its top corner.</span>
+          <span data-t="tr">⚠️ Not: çalışırken tarayıcın <b>pop-up izni</b> isteyebilir — <b>İzin Ver</b>'e tıkla (tarama için iki küçük pencere açılıp kendiliğinden kapanır). Sonuç panelini istediğin an köşesindeki <b>✕</b> ile kapatabilirsin.</span>
+        </p>
+
         <details class="codebox">
           <summary>
             <span><span data-t="en">View the code</span><span data-t="tr">Kodu göster</span> <span class="fname">· x-unfollowers.js</span></span>
@@ -342,8 +358,16 @@
 
   let box = document.getElementById("xunf-box");
   if (!box) { box = document.createElement("div"); box.id = "xunf-box"; document.body.appendChild(box); }
-  box.style.cssText = "position:fixed;bottom:16px;right:16px;z-index:2147483647;width:344px;max-height:82vh;overflow:auto;background:#14181d;color:#eef1f3;border:1px solid #2f3742;border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.65);font:14px/1.5 -apple-system,system-ui,sans-serif;padding:16px";
-  const say = (h) => { box.innerHTML = h; };
+  box.style.cssText = "position:fixed;bottom:16px;right:16px;z-index:2147483647;width:344px;max-height:82vh;overflow:auto;background:#14181d;color:#eef1f3;border:1px solid #2f3742;border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.65);font:14px/1.5 -apple-system,system-ui,sans-serif;padding:14px 16px 16px";
+  if (!document.getElementById("xunf-style")) {
+    const st = document.createElement("style");
+    st.id = "xunf-style";
+    st.textContent = "@keyframes xunf-slide{0%{transform:translateX(-120%)}100%{transform:translateX(320%)}}@keyframes xunf-pulse{0%,100%{opacity:.45}50%{opacity:1}}#xunf-box .xunf-track{position:relative;height:6px;border-radius:99px;background:#242a31;overflow:hidden;margin:12px 0 8px}#xunf-box .xunf-bar{position:absolute;top:0;left:0;height:100%;width:36%;border-radius:99px;background:linear-gradient(90deg,rgba(56,193,255,0),#1d9bf0,#38c1ff,rgba(56,193,255,0));animation:xunf-slide 1.15s ease-in-out infinite}";
+    document.head.appendChild(st);
+  }
+  box.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:12px;font-weight:700;letter-spacing:.05em;color:#8b949e">X UNFOLLOWERS</span><button id="xunf-close" title="Close / Kapat" style="background:transparent;border:0;color:#8b949e;font-size:18px;line-height:1;cursor:pointer;padding:2px 7px;border-radius:6px">✕</button></div><div id="xunf-content"></div>';
+  document.getElementById("xunf-close").onclick = () => box.remove();
+  const say = (h) => { const c = document.getElementById("xunf-content"); if (c) c.innerHTML = h; };
 
   const RES = ["home","explore","notifications","messages","i","settings","search","compose","bookmarks","jobs","lists"];
   let me = null;
@@ -391,12 +415,16 @@
       await sleep(600);
     }
     const into = new Map();
+    say('<div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:99px;background:#1d9bf0;animation:xunf-pulse 1.2s infinite;flex:0 0 auto"></span><b>Scanning your ' + kind + '…</b></div>'
+      + '<div class="xunf-track"><div class="xunf-bar"></div></div>'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;color:#8b949e;font-size:12px"><span>collected</span><b id="xunf-count" style="color:#1d9bf0;font-size:15px">0</b></div>'
+      + '<div style="color:#6b7480;font-size:11px;margin-top:6px">Scrolling slowly so none are missed. A small window is doing it — it closes itself.</div>');
+    const setCount = (n) => { const el = document.getElementById("xunf-count"); if (el) el.textContent = String(n); };
     let stable = 0, lastCount = -1, lastH = -1;
     for (let i = 0; i < 9000 && stable < 5; i++) {
       if (w.closed) break;
       try { collect(w.document, into); } catch (e) {}
-      say('Scanning your <b>' + kind + '</b> … <b style="color:#1d9bf0;font-size:16px">' + into.size + '</b>'
-        + '<div style="color:#8b949e;font-size:12px;margin-top:4px">Scrolling slowly so none are missed. The small window closes itself.</div>');
+      setCount(into.size);
       let h = 0, atBottom = false;
       try {
         const se = w.document.scrollingElement || w.document.documentElement;
