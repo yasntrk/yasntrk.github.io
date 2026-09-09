@@ -200,8 +200,8 @@
             <span data-t="tr">Seni geri takip<br><span class="grad">etmeyenleri gör</span></span>
           </h1>
           <p class="lede">
-            <span data-t="en">One click copies a tiny script. Paste it into your X tab and it finds every account you follow that doesn't follow you back — all in your browser.</span>
-            <span data-t="tr">Tek tıkla küçük bir script kopyalanır. X sekmene yapıştır; takip ettiğin ama seni geri takip etmeyen herkesi bulur — hepsi tarayıcında.</span>
+            <span data-t="en">One click copies a tiny script. Paste it into your X tab and it lists everyone you follow who doesn't follow you back — then lets you bulk-unfollow. All in your browser.</span>
+            <span data-t="tr">Tek tıkla küçük bir script kopyalanır. X sekmene yapıştır; seni geri takip etmeyen herkesi listeler — istersen toplu takipten çıkarırsın. Hepsi tarayıcında.</span>
           </p>
 
           <div class="cta">
@@ -217,7 +217,7 @@
 
           <div class="trust">
             <span class="pill"><b>●</b> <span data-t="en">Nothing is uploaded</span><span data-t="tr">Hiçbir şey yüklenmez</span></span>
-            <span class="pill"><span data-t="en">Read-only — never follows/unfollows</span><span data-t="tr">Salt-okunur — takip edip bırakmaz</span></span>
+            <span class="pill"><span data-t="en">Bulk unfollow — you pick &amp; confirm</span><span data-t="tr">Toplu unfollow — sen seç &amp; onayla</span></span>
             <span class="pill"><span data-t="en">No login, no tokens</span><span data-t="tr">Giriş yok, token yok</span></span>
           </div>
         </section>
@@ -246,7 +246,7 @@
             <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
             <span class="n">04</span>
             <h3><span data-t="en">Let it scan</span><span data-t="tr">Taramasını bekle</span></h3>
-            <p><span data-t="en">Two small windows pop up, scroll themselves, and close. The result panel appears. <b>Allow pop-ups</b> if asked.</span><span data-t="tr">İki küçük pencere açılır, kendi kendine kaydırır ve kapanır. Sonuç paneli çıkar. Sorarsa <b>pop-up'a izin ver</b>.</span></p>
+            <p><span data-t="en">Two small windows pop up, scroll slowly, and close. The result panel appears — tick accounts and bulk-unfollow if you like. <b>Allow pop-ups</b> if asked.</span><span data-t="tr">İki küçük pencere açılır, yavaşça kaydırır ve kapanır. Sonuç paneli çıkar — istediklerini işaretleyip toplu takipten çıkabilirsin. Sorarsa <b>pop-up'a izin ver</b>.</span></p>
           </div>
         </div>
 
@@ -277,8 +277,8 @@
         </div>
 
         <p class="disclaimer">
-          <span data-t="en">Not affiliated with X Corp. or Twitter. Runs in your own session, reads only your own lists, never acts on your account. Inspired by cobanov's Instagram tool.</span>
-          <span data-t="tr">X Corp. veya Twitter ile ilişkili değildir. Kendi oturumunda çalışır, yalnızca kendi listelerini okur, hesabında hiçbir işlem yapmaz. cobanov'un Instagram aracından esinlenildi.</span>
+          <span data-t="en">Not affiliated with X Corp. or Twitter. Runs in your own session and reads your own lists. Unfollowing is optional — you select accounts and confirm, then it unfollows only those, slowly. Use responsibly. Inspired by cobanov's Instagram tool.</span>
+          <span data-t="tr">X Corp. veya Twitter ile ilişkili değildir. Kendi oturumunda çalışır, kendi listelerini okur. Takipten çıkarma isteğe bağlıdır — hesapları seçip onaylarsın, yalnızca onları yavaşça bırakır. Dikkatli kullan. cobanov'un Instagram aracından esinlenildi.</span>
         </p>
       </main>
 
@@ -326,8 +326,8 @@
     <script type="text/plain" id="snippet">/* X / Twitter — who doesn't follow you back?
  * Runs in your own x.com tab. It briefly pops open your Following and
  * Followers lists, auto-scrolls them, reads the @handles, and shows who
- * doesn't follow you back. Nothing is uploaded. It NEVER follows or
- * unfollows anyone — read-only.
+ * doesn't follow you back. Nothing is uploaded. Scanning is read-only;
+ * bulk-unfollow is optional and always asks you to confirm first.
  *
  * Support DICO 💜 https://play.google.com/store/apps/details?id=io.github.yasntrk.dico  (iOS soon)
  *
@@ -337,10 +337,12 @@
 (async () => {
   const PLAY = "https://play.google.com/store/apps/details?id=io.github.yasntrk.dico";
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const ct0 = (document.cookie.match(/ct0=([^;]+)/) || [])[1];
+  const BEARER = "Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA";
 
   let box = document.getElementById("xunf-box");
   if (!box) { box = document.createElement("div"); box.id = "xunf-box"; document.body.appendChild(box); }
-  box.style.cssText = "position:fixed;top:16px;right:16px;z-index:2147483647;width:340px;max-height:84vh;overflow:auto;background:#14181d;color:#eef1f3;border:1px solid #2f3742;border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.65);font:14px/1.5 -apple-system,system-ui,sans-serif;padding:16px";
+  box.style.cssText = "position:fixed;bottom:16px;right:16px;z-index:2147483647;width:344px;max-height:82vh;overflow:auto;background:#14181d;color:#eef1f3;border:1px solid #2f3742;border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.65);font:14px/1.5 -apple-system,system-ui,sans-serif;padding:16px";
   const say = (h) => { box.innerHTML = h; };
 
   const RES = ["home","explore","notifications","messages","i","settings","search","compose","bookmarks","jobs","lists"];
@@ -365,9 +367,15 @@
         if (a) { const h = a.getAttribute("href").slice(1); if (/^[A-Za-z0-9_]{1,15}$/.test(h)) handle = h; }
       }
       if (handle) {
-        const nm = cell.querySelector('a[href^="/"] span');
-        if (nm) name = nm.textContent.trim();
-        into.set(handle.toLowerCase(), { handle: handle, name: name });
+        const key = handle.toLowerCase();
+        const img = cell.querySelector("img");
+        if (!into.has(key)) {
+          const nm = cell.querySelector('a[href^="/"] span');
+          if (nm) name = nm.textContent.trim();
+          into.set(key, { handle: handle, name: name, avatar: img ? img.src : "" });
+        } else if (img) {
+          const rec = into.get(key); if (rec && !rec.avatar) rec.avatar = img.src;
+        }
       }
     });
   };
@@ -383,19 +391,40 @@
       await sleep(600);
     }
     const into = new Map();
-    let stable = 0, last = 0;
-    for (let i = 0; i < 6000 && stable < 12; i++) {
+    let stable = 0, lastCount = -1, lastH = -1;
+    for (let i = 0; i < 9000 && stable < 5; i++) {
       if (w.closed) break;
       try { collect(w.document, into); } catch (e) {}
       say('Scanning your <b>' + kind + '</b> … <b style="color:#1d9bf0;font-size:16px">' + into.size + '</b>'
-        + '<div style="color:#8b949e;font-size:12px;margin-top:4px">A small window is scrolling for you. It closes itself.</div>');
-      try { w.scrollTo(0, 99999999); } catch (e) {}
-      await sleep(650);
-      if (into.size === last) stable++; else { stable = 0; last = into.size; }
+        + '<div style="color:#8b949e;font-size:12px;margin-top:4px">Scrolling slowly so none are missed. The small window closes itself.</div>');
+      let h = 0, atBottom = false;
+      try {
+        const se = w.document.scrollingElement || w.document.documentElement;
+        h = se.scrollHeight;
+        w.scrollBy(0, Math.max(400, Math.round(w.innerHeight * 0.8)));
+        atBottom = (w.innerHeight + (w.scrollY || se.scrollTop)) >= (h - 250);
+      } catch (e) {}
+      await sleep(2000);
+      if (into.size === lastCount && h === lastH && atBottom) stable++; else stable = 0;
+      lastCount = into.size; lastH = h;
     }
     try { collect(w.document, into); } catch (e) {}
     try { w.close(); } catch (e) {}
     return into;
+  };
+
+  const unfollow = async (handle) => {
+    if (!ct0) return false;
+    try {
+      const res = await fetch(location.origin + "/i/api/1.1/friendships/destroy.json", {
+        method: "POST",
+        headers: { authorization: BEARER, "x-csrf-token": ct0, "x-twitter-active-user": "yes", "x-twitter-auth-type": "OAuth2Session", "content-type": "application/x-www-form-urlencoded" },
+        body: "screen_name=" + encodeURIComponent(handle),
+        credentials: "include",
+      });
+      if (res.status === 429) { await sleep(60000); return false; }
+      return res.ok;
+    } catch (e) { return false; }
   };
 
   try {
@@ -408,25 +437,62 @@
     if (!following.size) { say('<b style="color:#e0245e">No accounts read.</b><div style="color:#8b949e;margin-top:4px">X may be rate-limiting. Wait a minute, then run again and keep the pop-up in front.</div>'); return; }
 
     const notBack = [...following.values()].filter((u) => !followers.has(u.handle.toLowerCase()));
-    const rows = notBack.map((u) =>
-      '<a href="https://x.com/' + u.handle + '" target="_blank" rel="noopener" style="display:flex;gap:9px;align-items:center;padding:8px 0;border-top:1px solid #2b3036;text-decoration:none;color:#eef1f3">'
-      + '<span style="width:26px;height:26px;border-radius:99px;background:#24303a;flex:0 0 auto"></span>'
-      + '<span style="min-width:0"><b style="font-family:ui-monospace,monospace">@' + u.handle + '</b>'
-      + (u.name ? '<div style="color:#8b949e;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + u.name.replace(/</g, "&lt;") + '</div>' : "")
-      + '</span></a>'
-    ).join("");
     const handles = notBack.map((u) => "@" + u.handle).join(" ");
+
+    const rowHtml = (u) =>
+      '<div class="xunf-row" data-h="' + u.handle + '" style="display:flex;gap:9px;align-items:center;padding:8px 0;border-top:1px solid #2b3036">'
+      + '<input type="checkbox" class="xunf-chk" style="width:16px;height:16px;accent-color:#e0245e;flex:0 0 auto;cursor:pointer">'
+      + (u.avatar
+          ? '<img src="' + u.avatar + '" referrerpolicy="no-referrer" style="width:30px;height:30px;border-radius:99px;flex:0 0 auto;object-fit:cover;background:#24303a">'
+          : '<span style="width:30px;height:30px;border-radius:99px;background:#24303a;flex:0 0 auto"></span>')
+      + '<span style="min-width:0;flex:1"><a href="https://x.com/' + u.handle + '" target="_blank" rel="noopener" style="color:#eef1f3;text-decoration:none;font-family:ui-monospace,monospace;font-weight:700">@' + u.handle + '</a>'
+      + (u.name ? '<div style="color:#8b949e;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + u.name.replace(/</g, "&lt;") + '</div>' : "")
+      + '</span><span class="xunf-status" style="font-size:11px;flex:0 0 auto;color:#8b949e"></span></div>';
+
     say(
       '<div style="display:flex;justify-content:space-between;align-items:center">'
       + '<b style="font-size:15px">Don’t follow you back</b><b style="color:#1d9bf0;font-size:20px">' + notBack.length + '</b></div>'
-      + '<div style="color:#8b949e;font-size:12px;margin:2px 0 10px">of ' + following.size + ' you follow</div>'
-      + '<button id="xunf-copy" style="width:100%;background:#1d9bf0;color:#fff;border:0;border-radius:10px;padding:9px;cursor:pointer;font:inherit;font-weight:700;margin-bottom:8px">Copy all @handles</button>'
-      + '<div style="max-height:42vh;overflow:auto">' + (rows || '<div style="color:#2fb86b;padding:10px 0">Everyone you follow follows you back 🎉</div>') + '</div>'
+      + '<div style="color:#8b949e;font-size:12px;margin:2px 0 10px">of ' + following.size + ' you follow · ' + followers.size + ' followers scanned</div>'
+      + '<div style="display:flex;gap:6px;margin-bottom:8px">'
+      +   '<button id="xunf-all" style="flex:1;background:#1b1f24;color:#eef1f3;border:1px solid #2f3742;border-radius:9px;padding:8px;cursor:pointer;font:inherit;font-size:13px;font-weight:600">Select all</button>'
+      +   '<button id="xunf-copy" style="flex:1;background:#1b1f24;color:#eef1f3;border:1px solid #2f3742;border-radius:9px;padding:8px;cursor:pointer;font:inherit;font-size:13px;font-weight:600">Copy @handles</button>'
+      + '</div>'
+      + '<button id="xunf-unf" disabled style="width:100%;background:#e0245e;color:#fff;border:0;border-radius:9px;padding:9px;cursor:pointer;font:inherit;font-weight:700;opacity:.5">Unfollow selected (0)</button>'
+      + '<div style="color:#8b949e;font-size:11px;margin:6px 0 4px;text-align:center">Unfollows ~2s each to stay under X limits · asks you to confirm</div>'
+      + '<div id="xunf-list" style="max-height:38vh;overflow:auto">' + (notBack.map(rowHtml).join("") || '<div style="color:#2fb86b;padding:10px 0">Everyone you follow follows you back 🎉</div>') + '</div>'
       + '<a href="' + PLAY + '" target="_blank" rel="noopener" style="display:flex;gap:8px;align-items:center;justify-content:center;margin-top:12px;padding:11px;border-radius:10px;background:#f5c542;color:#241542;font-weight:800;text-decoration:none">💜 Support us — DICO on Google Play</a>'
       + '<div style="text-align:center;color:#8b949e;font-size:11px;margin-top:6px">iOS coming soon · not affiliated with X</div>'
     );
-    const cp = document.getElementById("xunf-copy");
-    if (cp) cp.onclick = () => { try { navigator.clipboard.writeText(handles); } catch (e) {} cp.textContent = "Copied!"; };
+
+    const listEl = document.getElementById("xunf-list");
+    const unfBtn = document.getElementById("xunf-unf");
+    const allBtn = document.getElementById("xunf-all");
+    const copyB = document.getElementById("xunf-copy");
+    const chks = () => [...listEl.querySelectorAll(".xunf-chk")];
+    const selectable = () => chks().filter((c) => !c.disabled);
+    const selected = () => selectable().filter((c) => c.checked);
+    const refresh = () => { const n = selected().length; unfBtn.textContent = "Unfollow selected (" + n + ")"; unfBtn.disabled = n === 0; unfBtn.style.opacity = n === 0 ? ".5" : "1"; };
+    if (listEl) listEl.addEventListener("change", refresh);
+    if (allBtn) allBtn.onclick = () => { const on = selected().length < selectable().length; selectable().forEach((c) => (c.checked = on)); refresh(); };
+    if (copyB) copyB.onclick = () => { try { navigator.clipboard.writeText(handles); } catch (e) {} copyB.textContent = "Copied!"; setTimeout(() => (copyB.textContent = "Copy @handles"), 1500); };
+    if (unfBtn) unfBtn.onclick = async () => {
+      const sel = selected();
+      if (!sel.length) return;
+      if (!confirm("Unfollow " + sel.length + " account(s)?\n\nThis really unfollows them on your X account. It goes ~2s each to stay under X limits. Close the panel to stop.")) return;
+      unfBtn.disabled = true; allBtn.disabled = true;
+      let done = 0, fail = 0;
+      for (const c of sel) {
+        const row = c.closest("[data-h]"); const st = row.querySelector(".xunf-status");
+        st.textContent = "…"; st.style.color = "#8b949e";
+        const ok = await unfollow(row.getAttribute("data-h"));
+        if (ok) { done++; st.textContent = "✓"; st.style.color = "#2fb86b"; row.style.opacity = ".5"; c.checked = false; c.disabled = true; }
+        else { fail++; st.textContent = "✗"; st.style.color = "#e0245e"; }
+        unfBtn.textContent = "Unfollowing… " + (done + fail) + "/" + sel.length;
+        await sleep(1800 + Math.floor(Math.random() * 1000));
+      }
+      unfBtn.textContent = "Done — " + done + " unfollowed" + (fail ? (" · " + fail + " failed") : "");
+      allBtn.disabled = false;
+    };
     console.log("[X Unfollowers] " + notBack.length + " of " + following.size + " don’t follow back:\n" + handles);
   } catch (err) {
     if (err && err.popup) {

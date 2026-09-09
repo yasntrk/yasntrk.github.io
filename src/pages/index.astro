@@ -78,6 +78,35 @@ const latest = posts.slice(0, 3);
     </div>
   </section>
 
+  <!-- X Unfollowers tool -->
+  <section class="section" aria-labelledby="xtool-h">
+    <div class="tool-banner">
+      <div class="tool-copy">
+        <p class="tool-kicker">free browser tool</p>
+        <h2 id="xtool-h" class="tool-title">X Unfollowers</h2>
+        <p class="tool-sub">
+          See who doesn't follow you back on X (Twitter). One click copies a
+          tiny script — paste it into your X tab and it lists everyone you
+          follow who doesn't follow back. Runs entirely in your browser;
+          nothing is uploaded.
+        </p>
+        <div class="tool-cta-row">
+          <a class="tool-cta" href="/twitter/">Open the tool →</a>
+          <span class="tool-badge">find &amp; unfollow · EN / TR</span>
+        </div>
+      </div>
+      <div class="tool-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path
+            d="M4 3l7 8.5M20 3l-7 8.5M4 21l7-8.5M20 21l-7-8.5"
+            stroke="#38c1ff"
+            stroke-width="2"
+            stroke-linecap="round"></path>
+        </svg>
+      </div>
+    </div>
+  </section>
+
   <hr class="divider" />
 
   <!-- About -->
@@ -308,6 +337,92 @@ const latest = posts.slice(0, 3);
   .dico-cta-ghost:hover {
     border-color: #f6c445;
     color: #fff;
+  }
+  /* X Unfollowers tool banner */
+  .tool-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.8rem;
+    border-radius: var(--radius);
+    border: 1px solid #1c3a52;
+    color: #eaf4fb;
+    background:
+      radial-gradient(24rem 14rem at 15% 0, rgba(29, 155, 240, 0.16), transparent 70%),
+      linear-gradient(135deg, #0c1620 0%, #0f2536 55%, #123049 100%);
+    overflow: hidden;
+    transition:
+      transform 0.18s var(--ease),
+      border-color 0.18s var(--ease);
+  }
+  .tool-banner:hover {
+    transform: translateY(-2px);
+    border-color: #1d9bf0;
+  }
+  .tool-copy {
+    max-width: 46ch;
+  }
+  .tool-kicker {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #38c1ff;
+    margin: 0 0 0.3rem;
+  }
+  .tool-title {
+    font-size: clamp(1.6rem, 5vw, 2.2rem);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    color: #eaf4fb;
+    margin: 0 0 0.6rem;
+  }
+  .tool-sub {
+    color: #b7c9d6;
+    font-size: 0.95rem;
+    margin: 0 0 1rem;
+  }
+  .tool-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .tool-cta {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(120deg, #38c1ff, #1d9bf0);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: filter 0.18s var(--ease);
+  }
+  .tool-cta:hover {
+    filter: brightness(1.06);
+  }
+  .tool-badge {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: #7fa8c4;
+  }
+  .tool-mark {
+    flex-shrink: 0;
+    opacity: 0.9;
+    filter: drop-shadow(0 0 16px rgba(29, 155, 240, 0.35));
+  }
+  .tool-mark svg {
+    width: 92px;
+    height: 92px;
+  }
+  @media (max-width: 560px) {
+    .tool-mark {
+      display: none;
+    }
   }
   /* Animated dice cluster */
   .dico-dice {
